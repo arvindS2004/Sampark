@@ -1,7 +1,6 @@
 
 ## 📞 Sampark - Real-Time Video Calling with Chat
 
-![Sampark Logo](logo.png)
 
 **Sampark** is a sleek and stylish real-time video calling web application with integrated live chat, animated cursor effects, and a beautiful modern UI. It offers a seamless communication experience with just one click.
 
