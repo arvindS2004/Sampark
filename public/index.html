@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sampark: Video Call with Chat</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <div class="loader">
+        <div class="scanner">
+            <span>Loading...</span>
+        </div>
+    </div>
+
+    <h1 style="font-family: 'Courier New', Courier, monospace; font-size: 5rem;">
+        <img class="logot" src="logo.png" alt=""> Sampark
+    </h1>
+
+    <div class="video-container">     
+        <video id="localVideo" autoplay playsinline muted></video>
+        <video id="remoteVideo" autoplay playsinline></video>
+    </div>
+
+    <div class="controls">
+        <button id="muteButton">Mute</button>
+        <button id="videoButton">Video Off</button>
+        <button id="startCall">Start Call</button>
+        <button id="endCall">End Call</button>
+    </div>
+
+    <button id="toggleChatBtn" class="open-chat-btn">
+        <i class="fas fa-comments"></i> Open Chat
+    </button>
+
+    <div class="chat-container">
+        <div id="chatBox"></div>
+        <input type="text" id="chatInput" placeholder="Type a message...">
+        <button id="sendButton">Send</button>
+    </div>
+
+    <canvas id="cursorCanvas" style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;"></canvas>
+
+    <script>
+        window.onload = function () {
+            setTimeout(() => {
+                const loader = document.querySelector('.loader');
+                loader.style.display = 'none';
+            }, 2000);
+        };
+
+        const canvas = document.getElementById('cursorCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 10;
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 1 + 1;
+                this.alpha = 1;
+                this.fadeSpeed = 0.1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 5);
+                ctx.fillStyle = `rgba(0, 246, 255, ${this.alpha})`;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = ctx.fillStyle;
+                ctx.fill();
+            }
+            update() {
+                this.alpha -= this.fadeSpeed;
+            }
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle(e.clientX, e.clientY));
+            }
+        });
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        animate();
+
+        const toggleBtn = document.getElementById('toggleChatBtn');
+        const chatContainer = document.querySelector('.chat-container');
+        let isChatOpen = false;
+
+        toggleBtn.addEventListener('click', () => {
+            isChatOpen = !isChatOpen;
+            if (isChatOpen) {
+                chatContainer.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="fas fa-times"></i> Close Chat';
+            } else {
+                chatContainer.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="fas fa-comments"></i> Open Chat';
+            }
+        });
+
+        chatContainer.style.display = 'none';
+    </script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
